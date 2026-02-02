@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+jinja2
+python-multipart
+itsdangerous
+passlib[bcrypt]
+sqlmodel
+numpy
+requests
+sentence-transformers
+rank-bm25
+beautifulsoup4
+lxml
+tqdm

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="he">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ title or "CIS RAG Chat" }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', path='app.css') }}">
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="/">
+          <div class="brand-badge"></div>
+          <div class="brand-title">CIS RAG Chat</div>
+        </a>
+
+        <div class="nav-actions">
+          {% if username %}
+            <span class="muted">Hi, <b>{{ username }}</b></span>
+            <a class="btn ghost" href="/chat">Chat</a>
+            <button class="btn danger" id="logoutBtn" type="button">Logout</button>
+          {% else %}
+            <a class="btn ghost" href="/login">Login</a>
+            <a class="btn primary" href="/register">Create account</a>
+          {% endif %}
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+  <script defer src="{{ url_for('static', path='app.js') }}"></script>
+</body>
+</html>

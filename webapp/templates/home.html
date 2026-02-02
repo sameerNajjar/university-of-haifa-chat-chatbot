@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="home-splash">
+  <div class="home-panel card">
+    <div class="card-inner">
+      <div class="h1">Welcome 👋</div>
+      <p class="p" style="max-width: 900px;">
+        Ask questions about the Faculty of Computer & Information Science (CS + IS),
+        based on indexed pages and documents.
+      </p>
+
+      <div class="home-actions">
+        <a class="btn primary" href="/login">Login</a>
+        <a class="btn" href="/register">Create account</a>
+      </div>
+
+      <div class="kpi" style="margin-top: 18px;">
+        <div class="tile">
+          <div class="big">RAG</div>
+          <div class="small">Cited answers from your data</div>
+        </div>
+        <div class="tile">
+          <div class="big">Hebrew</div>
+          <div class="small">Works with Hebrew content</div>
+        </div>
+        <div class="tile">
+          <div class="big">Local LLM</div>
+          <div class="small">Runs with Ollama</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

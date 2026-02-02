@@ -1,3 +1,4 @@
+# python build_index.py --inp ./data/cis_chunks.jsonl --out_emb ./data/cis_emb.npy --out_meta ./data/cis_meta.jsonl
 import argparse
 import json
 import numpy as np

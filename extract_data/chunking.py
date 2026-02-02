@@ -1,3 +1,5 @@
+# python ./extract_data/chunking.py --inp cis_pages_clean.jsonl --out cis_chunks.jsonl
+
 import argparse
 import json
 import re

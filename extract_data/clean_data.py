@@ -1,3 +1,6 @@
+# python clean_cis_jsonl.py --inp cis_pages.jsonl --out cis_pages_clean.jsonl
+
+
 import argparse
 import json
 import re
@@ -39,7 +42,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--inp", default="cis_pages.jsonl")
     ap.add_argument("--out", default="cis_pages_clean.jsonl")
-    ap.add_argument("--min_chars", type=int, default=400)
+    ap.add_argument("--min_chars", type=int, default=200)
 
     # Boilerplate removal: lines that appear in >= this fraction of documents
     ap.add_argument("--boiler_frac", type=float, default=0.20)

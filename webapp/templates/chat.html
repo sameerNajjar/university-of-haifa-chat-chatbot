@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="chat-layout">
+  <aside class="sidebar">
+    <div class="sidebar-head">
+      <div style="font-weight:800;">Chats</div>
+      <button class="btn primary" id="newChatBtn" type="button">New</button>
+    </div>
+    <div class="chat-list" id="chatList">
+      <!-- JS will render chat history here -->
+      <div class="chat-item">
+        <div class="t">Welcome</div>
+        <div class="s">Start a new chat →</div>
+      </div>
+    </div>
+  </aside>
+
+  <section class="chat-main">
+    <div class="chat-main-head">
+      <div>
+        <div style="font-weight:900;">CIS RAG Chat</div>
+        <div class="small-note">Answers are based on indexed sources + citations.</div>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <button class="btn" id="resetBtn" type="button">Reset</button>
+        <button class="btn danger" id="logoutBtn2" type="button">Logout</button>
+      </div>
+    </div>
+
+    <div class="messages" id="messages">
+      <!-- messages rendered by JS -->
+    </div>
+
+    <div class="chat-input">
+      <textarea id="q" placeholder="Type your question... (Hebrew/English)"></textarea>
+      <button class="btn primary" id="sendBtn" type="button">Send</button>
+    </div>
+  </section>
+</div>
+{% endblock %}

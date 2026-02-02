@@ -1,3 +1,5 @@
+# python ./extract_data/extract_data.py --include page-sitemap.xml staff-sitemap.xml post-sitemap.xml https://cis.haifa.ac.il/category-sitemap.xml --out cis_pages.jsonl 
+
 import argparse
 import json
 import time
@@ -25,14 +27,23 @@ def to_https(url: str) -> str:
     return url
 
 
-def fetch_text(session: requests.Session, url: str, timeout: int = 25) -> str | None:
-    try:
-        r = session.get(url, timeout=timeout)
-        if r.status_code != 200:
+def fetch_text(session, url, timeout=25, retries=3):
+    for attempt in range(retries):
+        try:
+            r = session.get(url, timeout=timeout)
+            if r.status_code != 200:
+                if attempt < retries - 1:
+                    time.sleep(2 ** attempt)
+                    continue
+                return None
+            return r.text
+        except requests.exceptions.RequestException as e:
+            if attempt < retries - 1:
+                time.sleep(2 ** attempt)
+                continue
+            print(f"Failed to fetch {url}: {e}")
             return None
-        return r.text
-    except Exception:
-        return None
+    return None
 
 
 def parse_sitemap_index(xml_text: str) -> list[str]:
@@ -193,7 +204,7 @@ def main():
             title, text = extract_main_text(html, url)
 
             # Skip very short / empty pages
-            if len(text) < 200:
+            if len(text) < 50:
                 continue
 
             rec = {
