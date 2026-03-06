@@ -21,10 +21,6 @@
         <div style="font-weight:900;">CIS RAG Chat</div>
         <div class="small-note">Answers are based on indexed sources + citations.</div>
       </div>
-      <div style="display:flex; gap:10px;">
-        <button class="btn" id="resetBtn" type="button">Reset</button>
-        <button class="btn danger" id="logoutBtn2" type="button">Logout</button>
-      </div>
     </div>
 
     <div class="messages" id="messages">
@@ -32,7 +28,7 @@
     </div>
 
     <div class="chat-input">
-      <textarea id="q" placeholder="Type your question... (Hebrew/English)"></textarea>
+      <textarea id="q" dir="auto" placeholder="Type your question... (Hebrew/English)"></textarea>
       <button class="btn primary" id="sendBtn" type="button">Send</button>
     </div>
   </section>

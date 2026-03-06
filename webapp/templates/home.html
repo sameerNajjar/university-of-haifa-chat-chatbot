@@ -1,34 +1,41 @@
 {% extends "base.html" %}
 {% block content %}
-<section class="home-splash">
-  <div class="home-panel card">
-    <div class="card-inner">
-      <div class="h1">Welcome 👋</div>
-      <p class="p" style="max-width: 900px;">
-        Ask questions about the Faculty of Computer & Information Science (CS + IS),
-        based on indexed pages and documents.
-      </p>
+<div class="chat-layout" id="guestRoot">
+  <aside class="sidebar">
+    <div class="sidebar-head">
+      <div style="font-weight:900;">Guest mode</div>
+      <div class="small-note">No history</div>
+    </div>
 
-      <div class="home-actions">
-        <a class="btn primary" href="/login">Login</a>
-        <a class="btn" href="/register">Create account</a>
-      </div>
-
-      <div class="kpi" style="margin-top: 18px;">
-        <div class="tile">
-          <div class="big">RAG</div>
-          <div class="small">Cited answers from your data</div>
-        </div>
-        <div class="tile">
-          <div class="big">Hebrew</div>
-          <div class="small">Works with Hebrew content</div>
-        </div>
-        <div class="tile">
-          <div class="big">Local LLM</div>
-          <div class="small">Runs with Ollama</div>
-        </div>
+    <div class="chat-list">
+      <div class="chat-item" style="cursor:default;">
+        <div class="t">Use without account</div>
+        <div class="s">Your messages won’t be saved. Refreshing clears the chat.</div>
       </div>
     </div>
-  </div>
-</section>
+  </aside>
+
+  <section class="chat-main">
+    <div class="chat-main-head">
+      <div>
+        <div style="font-weight:900;">CIS RAG Chat</div>
+        <div class="small-note">Guest mode — login to save chat history.</div>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <button class="btn" id="guestResetBtn" type="button">Reset</button>
+      </div>
+    </div>
+
+    <div class="messages" id="messages">
+      <div class="msg assistant">
+        Hi 👋 Ask me anything about the Faculty of Computer & Information Science (CS + IS).
+      </div>
+    </div>
+
+    <div class="chat-input">
+      <textarea id="guestQ" dir="auto" placeholder="Type your question... (Hebrew/English)"></textarea>
+      <button class="btn primary" id="guestSendBtn" type="button">Send</button>
+    </div>
+  </section>
+</div>
 {% endblock %}

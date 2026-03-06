@@ -1,4 +1,4 @@
-# python clean_cis_jsonl.py --inp cis_pages.jsonl --out cis_pages_clean.jsonl
+# python ./extract_data/clean_data.py --inp ./data/cis_pages.jsonl --out ./data/cis_pages_clean.jsonl
 
 
 import argparse

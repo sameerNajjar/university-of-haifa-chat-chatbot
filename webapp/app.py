@@ -3,7 +3,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from itsdangerous import URLSafeSerializer
-from sqlmodel import Session, select
+from sqlmodel import Session, select, text
 from passlib.context import CryptContext
 
 import json
@@ -29,6 +29,8 @@ engine = make_engine(DB_PATH)
 
 app = FastAPI()
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
+templates.env.auto_reload = True
+templates.env.cache = {}
 app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
 
 os.makedirs(DATA_DIR, exist_ok=True)
@@ -38,7 +40,7 @@ rag = RagEngine(
     emb_path=EMB_PATH,
     meta_path=META_PATH,
     ollama_url=os.environ.get("OLLAMA_URL", "http://localhost:11434"),
-    llm_model=os.environ.get("LLM_MODEL", "qwen3:8b"),
+    llm_model=os.environ.get("LLM_MODEL", "qwen3:14b"),
     topk=int(os.environ.get("TOPK", "5")),
     num_ctx=int(os.environ.get("NUM_CTX", "8192")),
     alpha=float(os.environ.get("ALPHA", "0.6")),
@@ -68,6 +70,17 @@ def require_user(req: Request, db: Session = Depends(get_db)) -> User:
         raise HTTPException(status_code=401, detail="Invalid session")
     return user
 
+
+@app.middleware("http")
+async def no_cache_static(request: Request, call_next):
+    resp = await call_next(request)
+
+    # Disable caching for static + HTML during dev
+    if request.url.path.startswith("/static/") or request.url.path in ("/", "/login", "/register", "/chat"):
+        resp.headers["Cache-Control"] = "no-store"
+
+    return resp
+
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request, db: Session = Depends(get_db)):
     uid = get_user_id_from_cookie(request)
@@ -94,7 +107,7 @@ def api_register(username: str = Form(...), password: str = Form(...), db: Sessi
     existing = db.exec(select(User).where(User.username == username)).first()
     if existing:
         raise HTTPException(400, "Username already exists")
-
+    password = password.strip()
     u = User(username=username, password_hash=pwd_context.hash(password))
     db.add(u)
     db.commit()
@@ -102,9 +115,9 @@ def api_register(username: str = Form(...), password: str = Form(...), db: Sessi
     return {"ok": True}
 
 @app.post("/api/login")
-def api_login(response: JSONResponse, username: str = Form(...), password: str = Form(...), db: Session = Depends(get_db)):
+def api_login(username: str = Form(...), password: str = Form(...), db: Session = Depends(get_db)):
     u = db.exec(select(User).where(User.username == username.strip())).first()
-    if not u or not pwd_context.verify(password, u.password_hash):
+    if not u or not pwd_context.verify(password.strip(), u.password_hash):
         raise HTTPException(401, "Invalid credentials")
 
     token = signer.dumps({"user_id": u.id})
@@ -118,7 +131,11 @@ def api_logout():
     resp.delete_cookie("session")
     return resp
 
-@app.get("/", response_class=HTMLResponse)
+@app.get("/favicon.ico", include_in_schema=False)
+def favicon():
+    return RedirectResponse(url="./data/favicon.ico")
+
+@app.get("/chat", response_class=HTMLResponse)
 def chat_page(request: Request, user: User = Depends(require_user)):
     return templates.TemplateResponse("chat.html", {"request": request, "username": user.username})
 
@@ -189,4 +206,16 @@ def api_send_async(chat_id: int, payload: dict = Body(...), user: User = Depends
     db.add(Message(chat_id=chat_id, role="assistant", content=ans, sources_json=json.dumps(sources, ensure_ascii=False)))
     db.commit()
 
+    return {"answer": ans, "sources": sources}
+
+
+@app.post("/api/guest/send")
+def api_guest_send(payload: dict = Body(...)):
+    text = (payload.get("text") or "").strip()
+    if not text:
+        raise HTTPException(400, "Empty message")
+
+    ans, sources = rag.answer(text, want_hebrew=None)
+
+    # No DB writes here (guest = no history)
     return {"answer": ans, "sources": sources}

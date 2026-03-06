@@ -61,10 +61,15 @@ body{
 }
 
 .brand-badge{
-  width:34px;height:34px;
+  width:82px;
+  height:44px;
   border-radius: 12px;
-  background: linear-gradient(135deg, var(--accent), var(--accent2));
-  box-shadow: 0 10px 30px rgba(124,92,255,.25);
+
+  /* University of Haifa logo */
+  background: url("/static/uhaifa_logo_header.png") center / contain no-repeat;
+
+  /* remove old gradient look */
+  box-shadow: 0 10px 30px rgba(0,0,0,.35);
 }
 
 .brand-title{
@@ -290,6 +295,7 @@ body{
   line-height: 1.55;
   white-space: pre-wrap;
   word-wrap: break-word;
+  unicode-bidi: plaintext;
 }
 
 .msg.user{
@@ -302,6 +308,11 @@ body{
   margin-right:auto;
   background: rgba(34,211,238,.10);
   border-color: rgba(34,211,238,.18);
+}
+
+.msg, .msg .bubble{
+  unicode-bidi: plaintext;
+  text-align: start;
 }
 
 .chat-input{

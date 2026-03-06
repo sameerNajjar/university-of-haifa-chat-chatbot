@@ -235,7 +235,7 @@ def main():
     ap.add_argument("--meta", default="./data/cis_meta.jsonl")
     ap.add_argument("--embed_model", default="intfloat/multilingual-e5-small")
     ap.add_argument("--ollama_url", default="http://localhost:11434")
-    ap.add_argument("--llm", default="qwen3:8b")
+    ap.add_argument("--llm", default="qwen3:14b")
     ap.add_argument("--topk", type=int, default=5)
     ap.add_argument("--max_per_url", type=int, default=2)
     ap.add_argument("--num_ctx", type=int, default=8192)

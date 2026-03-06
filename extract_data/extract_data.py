@@ -1,4 +1,4 @@
-# python ./extract_data/extract_data.py --include page-sitemap.xml staff-sitemap.xml post-sitemap.xml https://cis.haifa.ac.il/category-sitemap.xml --out cis_pages.jsonl 
+# python ./extract_data/extract_data.py --include page-sitemap.xml staff-sitemap.xml post-sitemap.xml https://cis.haifa.ac.il/category-sitemap.xml --out ./data/cis_pages.jsonl 
 
 import argparse
 import json
@@ -135,13 +135,18 @@ def main():
     ap.add_argument("--out", default="cis_pages.jsonl")
     ap.add_argument("--delay", type=float, default=0.8)
     ap.add_argument("--max-urls", type=int, default=5000)
-
+    ap.add_argument(
+    "--include",
+    nargs="*",
+    default=["page-sitemap.xml", "staff-sitemap.xml"],
+    help="Substring filters for sitemap URLs (e.g., page-sitemap.xml staff-sitemap.xml post-sitemap.xml)",
+    )
     # Choose which Yoast sitemaps to include
     ap.add_argument(
-        "--include",
+        "--extra-urls",
         nargs="*",
-        default=["page-sitemap.xml", "staff-sitemap.xml"],
-        help="Substring filters for sitemap URLs (e.g., page-sitemap.xml staff-sitemap.xml post-sitemap.xml)",
+        default=[],
+        help="Extra single pages to fetch (manual URLs). These are fetched as-is (no crawling).",
     )
     args = ap.parse_args()
 
@@ -189,28 +194,45 @@ def main():
         e for e in entries
         if urlparse(e["loc"]).netloc == "cis.haifa.ac.il" and looks_useful_url(e["loc"])
     ][: args.max_urls]
+    manual_entries = []
+    for u in args.extra_urls:
+        u = to_https(u.strip())
+        if not u:
+            continue
+        manual_entries.append({
+            "loc": u,
+            "lastmod": None,
+            "source_sitemap": "manual",
+        })
+
+    print(f"Manual extra URLs to fetch: {len(manual_entries)}")
 
     print(f"Total URLs to fetch: {len(entries)}")
 
     # 4) Fetch each page + extract
     saved = 0
+    seen = set()
+
     with open(args.out, "w", encoding="utf-8") as f:
-        for e in tqdm(entries):
+        for e in tqdm(entries + manual_entries):
             url = e["loc"]
+            if url in seen:
+                continue
+            seen.add(url)
+
             html = fetch_text(session, url)
             if not html:
                 continue
 
             title, text = extract_main_text(html, url)
 
-            # Skip very short / empty pages
             if len(text) < 50:
                 continue
 
             rec = {
                 "url": url,
                 "title": title,
-                "text": text,                # UTF-8 Hebrew preserved
+                "text": text,
                 "lang_guess": detect_lang(text),
                 "hebrew_ratio": round(hebrew_ratio(text), 4),
                 "lastmod": e.get("lastmod"),
@@ -220,8 +242,6 @@ def main():
             f.write(json.dumps(rec, ensure_ascii=False) + "\n")
             saved += 1
             time.sleep(args.delay)
-
-    print(f"Saved {saved} pages into: {args.out}")
 
 
 if __name__ == "__main__":
